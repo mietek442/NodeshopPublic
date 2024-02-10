@@ -1,0 +1,57 @@
+const express = require("express");
+const router = express.Router();
+const app = express();
+const mysql = require("mysql");
+const jwt = require("jsonwebtoken");
+app.use(express.json());
+
+// app.use(cors());
+
+const dotenv = require("dotenv");
+const session = require("express-session");
+var cookieSession = require("cookie-session");
+const { stringify } = require("querystring");
+function generateAccessToken(username) {
+  return jwt.sign(username, "TajnyKlucz", {
+    expiresIn: "1800s",
+  });
+}
+const db = mysql.createConnection({
+  user: "root",
+  host: "localhost",
+  password: "", // tylko w xamp jak jest
+  database: "mojabaza",
+});
+
+router.post("/", function (req, red, next) {
+  const email = req.body.email;
+  const passresetToken = generateAccessToken({
+    email: email,
+  });
+
+  const valuesone = [email];
+  const SQLone = `DELETE FROM changepass WHERE email = ?`;
+  db.query(SQLone, valuesone, async (err, res) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("yes");
+    }
+  });
+  const valuesS = [email, passresetToken];
+  const SQL = `INSERT INTO changepass (email,Tokenchange, date) VALUES (?,?,UNIX_TIMESTAMP(NOW()));`;
+  db.query(SQL, valuesS, async (err, res) => {
+    if (err) {
+      red.send(err);
+      console.log(err);
+    } else {
+      // // res.send(`Login?message=${passresetToken}`);
+      // console.log(`Login?message=${passresetToken}`);
+      red.send(`/passchange?message=${passresetToken}`);
+    }
+  });
+
+  console.log(email, passresetToken);
+  // res.send(passresetToken);
+});
+module.exports = router;

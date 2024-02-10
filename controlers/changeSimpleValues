@@ -1,0 +1,31 @@
+const express = require("express");
+const router = express.Router();
+const app = express();
+const mysql = require("mysql");
+app.use(express.json());
+const db = mysql.createConnection({
+  user: "root",
+  host: "localhost",
+  password: "", // tylko w xamp jak jest
+  database: "mojabaza",
+});
+router.post("/", async (req, red) => {
+  const id = req.body.id;
+  const righttab = req.body.righttab;
+  const lefttab = req.body.lefttab;
+  var resulttochange = lefttab.map((e, value) => {
+    var result = e + " = '" + righttab[value] + "'";
+    return result;
+  });
+  const valuestochange = resulttochange.join(",");
+  valuesS = [id];
+  const SQL = `UPDATE users SET ${valuestochange} WHERE id = ?;`;
+  db.query(SQL, valuesS, async (err, res) => {
+    if (err) {
+      red.send({ message: { text: "something wrong", color: "red" } });
+    } else {
+      red.send({ message: { text: "Values Changed", color: "green" } });
+    }
+  });
+});
+module.exports = router;

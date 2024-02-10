@@ -1,0 +1,44 @@
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcrypt");
+const app = express();
+const mysql = require("mysql");
+const jwt = require("jsonwebtoken");
+app.use(express.json());
+const dotenv = require("dotenv");
+const session = require("express-session");
+var cookieSession = require("cookie-session");
+const { stringify } = require("querystring");
+function JwtVerfiy(datatovervify) {
+  return jwt.verify(
+    datatovervify,
+    "TajnyKlucz",
+    (err, dekodettocken) => {
+      return dekodettocken;
+    }
+  );
+}
+const db = mysql.createConnection({
+  user: "root",
+  host: "localhost",
+  password: "", // tylko w xamp jak jest
+  database: "mojabaza",
+});
+router.post("/", async (req, red) => {
+  const passchangetoken = req.body.passchangetoken;
+  const passtochange = await bcrypt.hash(req.body.Password, 10);
+  const email = JwtVerfiy(passchangetoken)?.email;
+  const valuesS = [email];
+  console.log("wartosci", email, passtochange);
+
+  const SQL = `UPDATE users SET password = '${passtochange}' WHERE email =? AND EXISTS ( SELECT email FROM changepass WHERE Tokenchange = "${passchangetoken}" AND(UNIX_TIMESTAMP(NOW())-date)<=7200);;`;
+  db.query(SQL, valuesS, async (err, res) => {
+    if (err) {
+      red.send({ message: { text: "something wrong", color: "red" } });
+      console.log(err);
+    } else {
+      red.send({ message: { text: "Pass Changed", color: "green" } });
+    }
+  });
+});
+module.exports = router;

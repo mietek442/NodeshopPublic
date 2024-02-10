@@ -1,0 +1,32 @@
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcrypt");
+const app = express();
+const mysql = require("mysql");
+app.use(express.json());
+const db = mysql.createConnection({
+  user: "root",
+  host: "localhost",
+  password: "", // tylko w xamp jak jest
+  database: "mojabaza",
+});
+router.post("/", async (req, res) => {
+  const passFromForm = req.body.Password;
+  const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
+  const sentEmail = req.body.Email;
+  // console.log("hasło register: ", passFromForm);
+  // console.log(userPassEncrypt);
+  const sentUserName = req.body.UserName;
+  const sentPassword = userPassEncrypt;
+  const SQL = "INSERT INTO users (email,username,password)VALUES (?,?,?)";
+  const valuesS = [sentEmail, sentUserName, sentPassword];
+  db.query(SQL, valuesS, async (err, result) => {
+    if (err) {
+      res.send(err);
+    } else {
+      // console.log("user save succes");
+      res.send({ message: "user add" });
+    }
+  });
+});
+module.exports = router;
