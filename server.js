@@ -1,5 +1,5 @@
 const express = require("express");
-
+//k1
 const app = express();
 const mysql = require("mysql");
 const Token = require("crypto").randomBytes(64).toString("hex");
@@ -8,7 +8,7 @@ app.use(express.json());
 var cookieSession = require("cookie-session");
 const PORT = process.env.PORT || 3000;
 
-app.set("trust proxy", 1); // trust first proxy
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: "http://localhost:3000",
