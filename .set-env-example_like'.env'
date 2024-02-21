@@ -1,0 +1,8 @@
+#Enviroment
+NODE_ENV = developmnet
+#DataBase
+DB_NAME = 
+DB_USER = 
+DB_PASSWORD = 
+#JWTPass
+JWTPASS = 
