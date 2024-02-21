@@ -1,31 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 const app = express();
-const mysql = require("mysql");
+const db = require("../config/database");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
 function generateAccessToken(username) {
-  return jwt.sign(username, "TajnyKlucz", {
+  return jwt.sign(username, process.env.JWTPASS, {
     expiresIn: "1800s",
   });
 }
-const db = mysql.createConnection({
-  user: "root",
-  host: "localhost",
-  password: "", // tylko w xamp jak jest
-  database: "mojabaza",
-});
 router.post("/", async (req, red) => {
   const checkemail = req.body.LoginMail;
   const checkpass = req.body.LoginPassword;
-  const passloginencrypt = checkpass;
   var personalia = "null";
   var email = "null";
   db.query(
     "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
     checkemail,
-    (err, rows, fields) => {
+    (err, rows) => {
       if (err) {
         throw err;
         red.send({ dbstatus: "error", response: err });

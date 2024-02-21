@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 const app = express();
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
@@ -15,14 +16,14 @@ app.use(
   })
 );
 function generateAccessToken(username) {
-  return jwt.sign(username, "TajnyKlucz", {
+  return jwt.sign(username, process.env.JWTPASS, {
     expiresIn: "1800s",
   });
 }
 
 app.use(
   session({
-    secret: "tajnyKluczSesji",
+    secret: "TajnyRandomKey",
     resave: false,
     saveUninitialized: true,
   })

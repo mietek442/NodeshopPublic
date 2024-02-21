@@ -1,26 +1,26 @@
 const express = require("express");
+require("dotenv").config();
 const router = express.Router();
 const app = express();
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
+
+const db = require("../config/database");
 // app.use(cors());
 
 const dotenv = require("dotenv");
 const session = require("express-session");
 var cookieSession = require("cookie-session");
 const { stringify } = require("querystring");
-
-const db = mysql.createConnection({
-  user: "root",
-  host: "localhost",
-  password: "", // tylko w xamp jak jest
-  database: "mojabaza",
-});
 function JwtVerfiy(datatovervify) {
-  return jwt.verify(datatovervify, "TajnyKlucz", (err, dekodettocken) => {
-    return dekodettocken;
-  });
+  return jwt.verify(
+    datatovervify,
+    process.env.JWTPASS,
+    (err, dekodettocken) => {
+      return dekodettocken;
+    }
+  );
 }
 router.get("/", function (req, res, next) {
   const datatores = JwtVerfiy(req?.session?.views);

@@ -1,14 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const app = express();
-const mysql = require("mysql");
+require("dotenv").config();
+const db = require("../config/database");
 app.use(express.json());
-const db = mysql.createConnection({
-  user: "root",
-  host: "localhost",
-  password: "", // tylko w xamp jak jest
-  database: "mojabaza",
-});
 router.post("/", async (req, red) => {
   const id = req.body.id;
   const righttab = req.body.righttab;
@@ -20,7 +15,7 @@ router.post("/", async (req, red) => {
   const valuestochange = resulttochange.join(",");
   valuesS = [id];
   const SQL = `UPDATE users SET ${valuestochange} WHERE id = ?;`;
-  db.query(SQL, valuesS, async (err, res) => {
+  db.query(SQL, valuesS, async (err) => {
     if (err) {
       red.send({ message: { text: "something wrong", color: "red" } });
     } else {

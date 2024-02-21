@@ -1,29 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const app = express();
-const mysql = require("mysql");
+require("dotenv").config();
+const db = require("../config/database");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
-
-// app.use(cors());
-
-const dotenv = require("dotenv");
-const session = require("express-session");
-var cookieSession = require("cookie-session");
-const { stringify } = require("querystring");
 function generateAccessToken(username) {
-  return jwt.sign(username, "TajnyKlucz", {
+  return jwt.sign(username, process.env.JWTPASS, {
     expiresIn: "1800s",
   });
 }
-const db = mysql.createConnection({
-  user: "root",
-  host: "localhost",
-  password: "", // tylko w xamp jak jest
-  database: "mojabaza",
-});
 
-router.post("/", function (req, red, next) {
+router.post("/", function (req, red) {
   const email = req.body.email;
   const passresetToken = generateAccessToken({
     email: email,
@@ -31,7 +19,7 @@ router.post("/", function (req, red, next) {
 
   const valuesone = [email];
   const SQLone = `DELETE FROM changepass WHERE email = ?`;
-  db.query(SQLone, valuesone, async (err, res) => {
+  db.query(SQLone, valuesone, async (err) => {
     if (err) {
       console.log(err);
     } else {
@@ -40,7 +28,7 @@ router.post("/", function (req, red, next) {
   });
   const valuesS = [email, passresetToken];
   const SQL = `INSERT INTO changepass (email,Tokenchange, date) VALUES (?,?,UNIX_TIMESTAMP(NOW()));`;
-  db.query(SQL, valuesS, async (err, res) => {
+  db.query(SQL, valuesS, async (err) => {
     if (err) {
       red.send(err);
       console.log(err);
