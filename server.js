@@ -6,7 +6,7 @@ const Token = require("crypto").randomBytes(64).toString("hex");
 const cors = require("cors");
 app.use(express.json());
 var cookieSession = require("cookie-session");
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 80;
 
 app.set("trust proxy", 1);
 app.use(
