@@ -3,7 +3,6 @@ NODE_ENV = developmnet
 #DataBase
 DB_NAME = 
 DB_USER = 
-DB_HOST = 
 DB_PASSWORD = 
 #JWTPass
 JWTPASS = 
