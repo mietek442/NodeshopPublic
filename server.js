@@ -13,9 +13,10 @@ const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
 
 const swaggerOptions = {
+  failOnErrors: true,
   swaggerDefinition: {
     info: {
-      title: "Library API",
+      title: "NodeShop",
       version: "1.0.1",
     },
   },
@@ -25,21 +26,10 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
-/**
- * @swagger
- * /login:
- *   post:
- *     description: Get all books
- *     responses:
- *       200:
- *         description: Success
- *
- */
-
 app.set("trust proxy", 1);
 app.use(
   cors({
-    origin: "http://localhost:3000", // Pozwala na żądania tylko z tego źródła
+    origin: "http://localhost:8802", // Pozwala na żądania tylko z tego źródła
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Domyślnie, ale możesz to dostosować
     // allowedHeaders: "*", // Pozwala na wszystkie nagłówki
     credentials: true, // Pozwala na wysyłanie ciasteczek / nagłówków uwierzytelniających
@@ -55,30 +45,92 @@ app.use(
 );
 
 app.listen(8802, () => {
-  console.log("server is run in 3002");
+  console.log("server is run in 8802");
 });
 
 // register
+
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register new acount.
+ *     parameters:
+ *       - in: body
+ *         name: token
+ *         schema:
+ *           type: object
+ *           properties:
+ *            UserName:
+ *              type: string
+ *              required: true
+ *            Email:
+ *              type: string
+ *              required: true
+ *            Password:
+ *              type: string
+ *              required: true
+ *
+ *         description: Access token.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
+ *     responses:
+ *       '200':
+ *         description: Login
+ *       '400':
+ *         description: Problem with Login, not login
+ */
 const registerRoute = require("./controlers/register");
 app.use("/register", registerRoute);
 // login
 const loginRoute = require("./controlers/login");
-app.use("/login", loginRoute);
+// działą to pod spodem
 /**
  * @swagger
  * /login:
  *   post:
- *     description: Login
+ *     summary: Dodaje nowe dane.
  *     parameters:
- *      - name: title
- *        description: title of the book
- *        in: formData
- *        required: true
- *        type: string
+ *       - in: body
+ *         name: token
+ *         schema:
+ *           type: object
+ *           properties:
+ *            LoginMai:
+ *              type: string
+ *              required: true
+ *            LoginPassword:
+ *              type: string
+ *              required: true
+ *
+ *         description: Access token.
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
  *     responses:
- *       201:
- *         description: Created
+ *       '200':
+ *         description: Login
+ *       '400':
+ *         description: Problem with Login, not login
  */
+
+app.use("/login", loginRoute);
+
 //wylogowanie sie
 const logoutRoute = require("./controlers/logout");
 app.use("/logout", logoutRoute);
@@ -88,6 +140,11 @@ app.use("/logout", logoutRoute);
  *   post:
  *     description: logut
  *     parameters:
+ *      - name: title
+ *        description: title of the book
+ *        in: formData
+ *        required: true
+ *        type: string
  *      - name: title
  *        description: title of the book
  *        in: formData

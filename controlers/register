@@ -2,27 +2,58 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const app = express();
-const mysql = require("mysql");
 const db = require("../config/database");
+
 app.use(express.json());
+
+async function checkIfUserExists(email) {
+  return new Promise((resolve, reject) => {
+    const SQL =
+      "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?";
+    const values = [email];
+    db.query(SQL, values, (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows.length > 0);
+      }
+    });
+  });
+}
+
+async function addUser(email, username, password) {
+  return new Promise((resolve, reject) => {
+    const SQL = "INSERT INTO users (email,username,password) VALUES (?,?,?)";
+    const values = [email, username, password];
+    db.query(SQL, values, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 router.post("/", async (req, res) => {
   const passFromForm = req.body.Password;
   const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
   const sentEmail = req.body.Email;
-  // console.log("hasło register: ", passFromForm);
-  // console.log(userPassEncrypt);
   const sentUserName = req.body.UserName;
   const sentPassword = userPassEncrypt;
-  const SQL = "INSERT INTO users (email,username,password)VALUES (?,?,?)";
-  const valuesS = [sentEmail, sentUserName, sentPassword];
-  db.query(SQL, valuesS, async (err, result) => {
-    if (err) {
-      res.send(err);
-      console.log(err);
+
+  try {
+    const userExists = await checkIfUserExists(sentEmail);
+    if (userExists) {
+      res.send({ message: "User already exists" });
     } else {
-      // console.log("user save succes");
-      res.send({ message: "user add" });
+      await addUser(sentEmail, sentUserName, sentPassword);
+      res.send({ message: "User added" });
     }
-  });
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+    console.error("Error:", error);
+  }
 });
+
 module.exports = router;

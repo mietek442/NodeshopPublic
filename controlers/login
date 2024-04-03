@@ -11,50 +11,56 @@ function generateAccessToken(username) {
     expiresIn: "1800s",
   });
 }
+
 router.post("/", async (req, red) => {
-  const checkemail = req.body.LoginMail;
-  const checkpass = req.body.LoginPassword;
+  const checkemail = req.body?.LoginMai;
+  const checkpass = req.body?.LoginPassword;
+  console.log(checkemail, checkpass);
   var personalia = "null";
   var email = "null";
-  db.query(
-    "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
-    checkemail,
-    (err, rows) => {
-      if (err) {
-        throw err;
-        red.send({ dbstatus: "error", response: err });
-      }
-      if (rows.length) {
-        const passfromdb = rows[0]?.password;
-
-        //uystaiwanie cokiesuów
-
-        if (bcrypt.compareSync(checkpass, passfromdb)) {
-          // ustawianie cookies
-          id = rows[0]?.id;
-          email = rows[0]?.email;
-          personalia = rows[0]?.username;
-          streets = rows[0]?.street;
-          postCodes = rows[0]?.postCode;
-          //
-          citys = rows[0]?.city;
-          const tokenseted = generateAccessToken({
-            id: id,
-            email: email,
-            personInfo: personalia,
-            street: streets,
-            postCode: postCodes,
-            city: citys,
-          });
-          req.session.views = tokenseted;
-          red.send({ dbstatus: "login", response: tokenseted });
-        } else {
-          red.send({ dbstatus: "notlogin", response: 0 });
+  if (checkemail.length < 1 || checkpass.length < 1) {
+    red.status(401).json({ error: "Unauthorized" });
+  } else {
+    db.query(
+      "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
+      checkemail,
+      (err, rows) => {
+        if (err) {
+          throw err;
+          red.send({ dbstatus: "error", response: err });
         }
-      } else {
-        red.send({ dbstatus: "wrongemail", response: 0 });
+        if (rows.length) {
+          const passfromdb = rows[0]?.password;
+
+          //uystaiwanie cokiesuów
+
+          if (bcrypt.compareSync(checkpass, passfromdb)) {
+            // ustawianie cookies
+            id = rows[0]?.id;
+            email = rows[0]?.email;
+            personalia = rows[0]?.username;
+            streets = rows[0]?.street;
+            postCodes = rows[0]?.postCode;
+            //
+            citys = rows[0]?.city;
+            const tokenseted = generateAccessToken({
+              id: id,
+              email: email,
+              personInfo: personalia,
+              street: streets,
+              postCode: postCodes,
+              city: citys,
+            });
+            req.session.views = tokenseted;
+            red.send({ dbstatus: "login", response: tokenseted });
+          } else {
+            red.send({ dbstatus: "notlogin", response: 0 });
+          }
+        } else {
+          red.send({ dbstatus: "wrongemail", response: 0 });
+        }
       }
-    }
-  );
+    );
+  }
 });
 module.exports = router;
