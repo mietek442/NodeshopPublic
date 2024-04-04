@@ -5,6 +5,7 @@ require("dotenv").config();
 const app = express();
 const db = require("../config/database");
 const jwt = require("jsonwebtoken");
+const { body, validationResult } = require("express-validator");
 app.use(express.json());
 function generateAccessToken(username) {
   return jwt.sign(username, process.env.JWTPASS, {
@@ -12,55 +13,70 @@ function generateAccessToken(username) {
   });
 }
 
-router.post("/", async (req, red) => {
-  const checkemail = req.body?.LoginMai;
-  const checkpass = req.body?.LoginPassword;
-  console.log(checkemail, checkpass);
-  var personalia = "null";
-  var email = "null";
-  if (checkemail.length < 1 || checkpass.length < 1) {
-    red.status(401).json({ error: "Unauthorized" });
-  } else {
-    db.query(
-      "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
-      checkemail,
-      (err, rows) => {
-        if (err) {
-          throw err;
-          red.send({ dbstatus: "error", response: err });
-        }
-        if (rows.length) {
-          const passfromdb = rows[0]?.password;
-
-          //uystaiwanie cokiesuów
-
-          if (bcrypt.compareSync(checkpass, passfromdb)) {
-            // ustawianie cookies
-            id = rows[0]?.id;
-            email = rows[0]?.email;
-            personalia = rows[0]?.username;
-            streets = rows[0]?.street;
-            postCodes = rows[0]?.postCode;
-            //
-            citys = rows[0]?.city;
-            const tokenseted = generateAccessToken({
-              id: id,
-              email: email,
-              personInfo: personalia,
-              street: streets,
-              postCode: postCodes,
-              city: citys,
-            });
-            req.session.views = tokenseted;
-            red.send({ dbstatus: "login", response: tokenseted });
-          } else {
-            red.send({ dbstatus: "notlogin", response: 0 });
+router.post(
+  "/",
+  [
+    body("Email").isEmail().withMessage("Please write corect Mail"),
+    body("Password")
+      .isLength({ min: 1 })
+      .withMessage("Password can not be null")
+      .blacklist("Password"),
+  ],
+  async (req, red) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      //return erors
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const checkemail = req.body?.LoginMai;
+    const checkpass = req.body?.LoginPassword;
+    console.log(checkemail, checkpass);
+    var personalia = "null";
+    var email = "null";
+    if (checkemail.length < 1 || checkpass.length < 1) {
+      red.status(401).json({ error: "Unauthorized" });
+    } else {
+      db.query(
+        "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
+        checkemail,
+        (err, rows) => {
+          if (err) {
+            throw err;
+            red.send({ dbstatus: "error", response: err });
           }
-        } else {
-          red.send({ dbstatus: "wrongemail", response: 0 });
+          if (rows.length) {
+            const passfromdb = rows[0]?.password;
+
+            //uystaiwanie cokiesuów
+
+            if (bcrypt.compareSync(checkpass, passfromdb)) {
+              // ustawianie cookies
+              id = rows[0]?.id;
+              email = rows[0]?.email;
+              personalia = rows[0]?.username;
+              streets = rows[0]?.street;
+              postCodes = rows[0]?.postCode;
+              //
+              citys = rows[0]?.city;
+              const tokenseted = generateAccessToken({
+                id: id,
+                email: email,
+                personInfo: personalia,
+                street: streets,
+                postCode: postCodes,
+                city: citys,
+              });
+              req.session.views = tokenseted;
+              red.send({ dbstatus: "User Logged", response: tokenseted });
+            } else {
+              red.send({ dbstatus: "not login", response: 0 });
+            }
+          } else {
+            red.send({ dbstatus: "Please write corect Mail", response: 0 });
+          }
         }
-      }
-    );
+      );
+    }
   }
-});
+);
 module.exports = router;

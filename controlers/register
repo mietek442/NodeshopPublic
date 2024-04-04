@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const app = express();
 const db = require("../config/database");
+const { body, validationResult } = require("express-validator");
 
 app.use(express.json());
 
@@ -35,25 +36,45 @@ async function addUser(email, username, password) {
   });
 }
 
-router.post("/", async (req, res) => {
-  const passFromForm = req.body.Password;
-  const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
-  const sentEmail = req.body.Email;
-  const sentUserName = req.body.UserName;
-  const sentPassword = userPassEncrypt;
+router.post(
+  "/",
+  [
+    body("Email").isEmail().withMessage("Please write corect Mail"),
 
-  try {
-    const userExists = await checkIfUserExists(sentEmail);
-    if (userExists) {
-      res.send({ message: "User already exists" });
-    } else {
-      await addUser(sentEmail, sentUserName, sentPassword);
-      res.send({ message: "User added" });
+    body("Password")
+      .isLength({ min: 8 })
+      .withMessage("Password must contains over 8 characters")
+      .matches(/^(?=.*[!@#$%^&*()\-_=+{};:,<.>])|(?=.*[A-Z])|(?=.*\d)/)
+      .withMessage(
+        "pass is to simply add either !-? or CAPITAL LETTER or a 123.."
+      )
+      .blacklist("Password"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      //return erors
+      return res.status(400).json({ errors: errors.array() });
     }
-  } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
-    console.error("Error:", error);
+    const passFromForm = req.body.Password;
+    const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
+    const sentEmail = req.body.Email;
+    const sentUserName = req.body.UserName;
+    const sentPassword = userPassEncrypt;
+
+    try {
+      const userExists = await checkIfUserExists(sentEmail);
+      if (userExists) {
+        res.send({ message: "User already exists" });
+      } else {
+        await addUser(sentEmail, sentUserName, sentPassword);
+        res.send({ message: "User added" });
+      }
+    } catch (error) {
+      res.status(500).send({ message: "Internal Server Error" });
+      console.error("Error:", error);
+    }
   }
-});
+);
 
 module.exports = router;

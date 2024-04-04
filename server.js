@@ -84,9 +84,12 @@ app.listen(8802, () => {
  *               data: "Przykładowe dane"
  *     responses:
  *       '200':
- *         description: Login
+ *         description: User added
  *       '400':
- *         description: Problem with Login, not login
+ *         description: user already exists <br>Please write corect Mail<br> Password must contains over 8 characters<br> pass is to simply add either !-? or CAPITAL LETTER or a 123..
+ *       '500':
+ *         description: Internal Server Error
+ *
  */
 const registerRoute = require("./controlers/register");
 app.use("/register", registerRoute);
@@ -97,7 +100,7 @@ const loginRoute = require("./controlers/login");
  * @swagger
  * /login:
  *   post:
- *     summary: Dodaje nowe dane.
+ *     summary: Login User.
  *     parameters:
  *       - in: body
  *         name: token
@@ -124,9 +127,12 @@ const loginRoute = require("./controlers/login");
  *               data: "Przykładowe dane"
  *     responses:
  *       '200':
- *         description: Login
+ *         description: User Logged
  *       '400':
- *         description: Problem with Login, not login
+ *         description: not login <br> Please write corect Mail <br> Password can not be null
+ *       '500':
+ *         description: Internal Server Error
+ *
  */
 
 app.use("/login", loginRoute);
