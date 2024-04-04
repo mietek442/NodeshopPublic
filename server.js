@@ -52,12 +52,21 @@ app.listen(8802, () => {
 
 /**
  * @swagger
+ * tags:
+ * - name: test
+ */
+/**
+ * @swagger
+ *
  * /register:
  *   post:
  *     summary: Register new acount.
+ *     tags:
+ *        - acounts
  *     parameters:
  *       - in: body
  *         name: token
+ *
  *         schema:
  *           type: object
  *           properties:
@@ -101,6 +110,8 @@ const loginRoute = require("./controlers/login");
  * /login:
  *   post:
  *     summary: Login User.
+ *     tags:
+ *        - acounts
  *     parameters:
  *       - in: body
  *         name: token
@@ -144,24 +155,56 @@ app.use("/logout", logoutRoute);
  * @swagger
  * /logout:
  *   post:
- *     description: logut
- *     parameters:
- *      - name: title
- *        description: title of the book
- *        in: formData
- *        required: true
- *        type: string
- *      - name: title
- *        description: title of the book
- *        in: formData
- *        required: true
- *        type: string
+ *     summary: Login User.
+ *     tags:
+ *        - acounts
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
  *     responses:
- *       201:
- *         description: Created
+ *       '200':
+ *         description: Logout
+ *       '400':
+ *         description: User not login
+ *       '500':
+ *         description: Internal Server Error
+ *
  */
 // zwracanie danych
 const returndataRoute = require("./controlers/returndata");
+/**
+ * @swagger
+ * /returndata:
+ *   get:
+ *     summary: Return data after login.
+ *     tags:
+ *        - AcountInfo
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
+ *     responses:
+ *       '200':
+ *         description: Return Json Data
+ *       '400':
+ *         description: User not login
+ *       '500':
+ *         description: Internal Server Error
+ *
+ */
 app.use("/returndata", returndataRoute);
 //generowanie tokenu do zmiany hasła
 const GenerateresetpassRoute = require("./controlers/generateresetpass");
