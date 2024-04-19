@@ -16,8 +16,8 @@ function generateAccessToken(username) {
 router.post(
   "/",
   [
-    body("Email").isEmail().withMessage("Please write corect Mail"),
-    body("Password")
+    body("LoginMai").isEmail().withMessage("Please write corect Mail"),
+    body("LoginPassword")
       .isLength({ min: 1 })
       .withMessage("Password can not be null")
       .blacklist("Password"),
@@ -28,8 +28,10 @@ router.post(
       //return erors
       return red.status(400).json({ errors: errors.array() });
     }
-    const checkemail = req.body?.LoginMai;
-    const checkpass = req.body?.LoginPassword;
+    const checkemail = req.body.LoginMai;
+    const checkpass = req.body.LoginPassword;
+    users = await User.query();
+    red.send(users);
     console.log(checkemail, checkpass);
     var personalia = "null";
     var email = "null";
@@ -37,13 +39,14 @@ router.post(
       red.status(401).json({ error: "Unauthorized" });
     } else {
       db.query(
-        "SELECT id,email,username,password,street,postCode,city FROM `users` WHERE email = ?",
+        "SELECT users.id, users.email, users.password, users.username, personalinfo.id, personalinfo.userId, personalinfo.street, personalinfo.postCode, personalinfo.city, personalinfo.houseNumber, personalinfo.phoneNumber FROM users LEFT JOIN personalinfo ON users.id = personalinfo.userId WHERE users.email = ?",
         checkemail,
         (err, rows) => {
           if (err) {
             throw err;
             red.send({ dbstatus: "error", response: err });
           }
+          console.log(rows[0]);
           if (rows.length) {
             const passfromdb = rows[0]?.password;
 

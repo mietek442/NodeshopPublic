@@ -73,7 +73,7 @@ app.listen(8802, () => {
  *            UserName:
  *              type: string
  *              required: true
- *            Email:
+ *            Mail:
  *              type: string
  *              required: true
  *            Password:
@@ -181,7 +181,7 @@ app.use("/logout", logoutRoute);
 const returndataRoute = require("./controlers/returndata");
 /**
  * @swagger
- * /returndata:
+ * /acountdata:
  *   get:
  *     summary: Return data after login.
  *     tags:
@@ -205,16 +205,62 @@ const returndataRoute = require("./controlers/returndata");
  *         description: Internal Server Error
  *
  */
-app.use("/returndata", returndataRoute);
+app.use("/acountdata", returndataRoute);
 //generowanie tokenu do zmiany hasła
 const GenerateresetpassRoute = require("./controlers/generateresetpass");
 app.use("/generateresetpass", GenerateresetpassRoute);
 //resetowania hasła
 const ResetPassRoute = require("./controlers/ResetPass");
-app.use("/ResetPass", ResetPassRoute);
+app.use("/resetpass", ResetPassRoute);
 //zmienienie podstawowych własności
 const changeSRoute = require("./controlers/changeSimpleValues");
 const { info } = require("console");
 const { title } = require("process");
 const { version } = require("os");
-app.use("/changeSValue", changeSRoute);
+/**
+ * @swagger
+ * /acountdata:
+ *   put:
+ *     summary: Return data after login.
+ *     tags:
+ *        - AcountInfo
+ *     parameters:
+ *       - in: body
+ *         name: token
+ *         schema:
+ *           type: object
+ *           properties:
+ *            mail:
+ *              type: string
+ *              required: true
+ *            street:
+ *              type: string
+ *              required: false
+ *            postcode:
+ *              type: string
+ *              required: false
+ *            city:
+ *              type: string
+ *              required: false
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
+ *     responses:
+ *       '200':
+ *         description: Return Json Data
+ *       '400':
+ *         description: User not login
+ *       '500':
+ *         description: Internal Server Error
+ *
+ */
+app.use("/acountdata", changeSRoute);
+
+// changesvalue change link and change link in resetpass, changesvalue is update param (put)

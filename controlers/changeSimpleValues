@@ -4,7 +4,8 @@ const app = express();
 require("dotenv").config();
 const db = require("../config/database");
 app.use(express.json());
-router.post("/", async (req, red) => {
+router.put("/", async (req, red) => {
+  console.log(req.body);
   const id = req.body.id;
   const righttab = req.body.righttab;
   const lefttab = req.body.lefttab;
@@ -12,6 +13,7 @@ router.post("/", async (req, red) => {
     var result = e + " = '" + righttab[value] + "'";
     return result;
   });
+
   const valuestochange = resulttochange.join(",");
   valuesS = [id];
   const SQL = `UPDATE users SET ${valuestochange} WHERE id = ?;`;
