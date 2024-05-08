@@ -29,14 +29,6 @@ exports.up = function (knex) {
         .inTable("users");
       table.timestamps(true, true);
     })
-    .createTable("productparams", (table) => {
-      table.increments("id").primary();
-      table.string("title").notNullable();
-      table.string("parameter").notNullable();
-      table.string("desc").notNullable();
-      table.string("infoparam").notNullable(); // explain about parameter
-      table.timestamps(true, true);
-    })
 
     .createTable("products", (table) => {
       table.increments("id").primary();
@@ -52,14 +44,22 @@ exports.up = function (knex) {
       table.string("imgurltwo");
       table.string("imgurlthree");
       table.string("imgurlfour");
+      table.float("size");
+
+      table.timestamps(true, true);
+    })
+    .createTable("productparams", (table) => {
+      table.increments("id").primary();
+      table.string("title").notNullable();
+      table.string("parameter").notNullable();
+      table.string("desc").notNullable();
+      table.string("infoparam").notNullable(); // explain about parameter
       table
-        .integer("paramId")
+        .integer("productId")
         .unsigned()
         .notNullable()
         .references("id")
-        .inTable("productparams");
-      table.string("size");
-
+        .inTable("products");
       table.timestamps(true, true);
     })
     .createTable("opinion", (table) => {
@@ -78,7 +78,7 @@ exports.up = function (knex) {
         .inTable("products");
       table.integer("stars").notNullable();
       table.string("desc").notNullable();
-      table.string("infoparam").notNullable(); // explain about parameter
+      table.string("img");
       table.timestamps(true, true);
     });
 };
@@ -89,9 +89,9 @@ exports.up = function (knex) {
  */
 exports.down = function (knex) {
   return knex.schema
-    .dropTableIfExists("users")
-    .dropTableIfExists("personalinfo")
-    .dropTableIfExists("productparams")
     .dropTableIfExists("opinion")
-    .dropTableIfExists("products");
+    .dropTableIfExists("productparams")
+    .dropTableIfExists("products")
+    .dropTableIfExists("personalinfo")
+    .dropTableIfExists("users");
 };
