@@ -7,7 +7,7 @@ exports.seed = async function (knex) {
   await knex("opinion").del();
   await knex("productparams").del();
   await knex("products").del();
-  await knex("personalinfo").del();
+  await knex("userinfo").del();
   await knex("users").del();
 
   await knex("users").insert([
@@ -24,7 +24,7 @@ exports.seed = async function (knex) {
       password: "SecurePa$$",
     },
   ]);
-  await knex("personalinfo").insert([
+  await knex("userinfo").insert([
     {
       id: 1,
       name: "John",

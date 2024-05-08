@@ -11,7 +11,7 @@ exports.up = function (knex) {
       table.string("password").notNullable();
       table.timestamps(true, true);
     })
-    .createTable("personalinfo", (table) => {
+    .createTable("userinfo", (table) => {
       table.increments();
       table.string("name");
       table.string("lastname");
@@ -92,6 +92,6 @@ exports.down = function (knex) {
     .dropTableIfExists("opinion")
     .dropTableIfExists("productparams")
     .dropTableIfExists("products")
-    .dropTableIfExists("personalinfo")
+    .dropTableIfExists("userinfo")
     .dropTableIfExists("users");
 };
