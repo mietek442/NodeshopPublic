@@ -11,7 +11,10 @@ var cookieSession = require("cookie-session");
 const PORT = process.env.PORT || 3002;
 const swaggerJsDoc = require("swagger-jsdoc");
 const swaggerUI = require("swagger-ui-express");
-
+const setupDb = require("./database/db-setup");
+const User = require("./database/models/user");
+const UserInfo = require("./database/models/userinfo");
+setupDb();
 const swaggerOptions = {
   failOnErrors: true,
   swaggerDefinition: {
@@ -55,6 +58,52 @@ app.listen(8802, () => {
  * tags:
  * - name: test
  */
+/**
+ * @swagger
+ * /test/{id}:
+ *   get:
+ *     summary: Return data after login.
+ *     tags:
+ *        - test
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Identyfikator użytkownika.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: string
+ *             example:
+ *               data: "Przykładowe dane"
+ *     responses:
+ *       '200':
+ *         description: Return Json Data
+ *       '400':
+ *         description: User not login
+ *       '500':
+ *         description: Internal Server Error
+ *
+ */
+app.get("/test/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const userInfo = await UserInfo.query().findById(id);
+
+    res.json(userInfo);
+    console.log(userInfo);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+});
 /**
  * @swagger
  *

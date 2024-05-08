@@ -2,43 +2,37 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const app = express();
-
+const User = require("../database/models/user");
 const { body, validationResult } = require("express-validator");
 
 app.use(express.json());
 
-async function checkIfUserExists(email) {
-  return new Promise((resolve, reject) => {
-    const SQL = "SELECT * FROM `users` WHERE email = ?";
-    const values = [email];
-    db.query(SQL, values, (err, rows) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows.length > 0);
-      }
-    });
-  });
+async function checkIfUserExists(mail) {
+  try {
+    const user = await User.query().where("mail", mail);
+    return user;
+  } catch (err) {
+    throw err;
+  }
 }
 
-async function addUser(email, username, password) {
-  return new Promise((resolve, reject) => {
-    const SQL = "INSERT INTO users (email,username,password) VALUES (?,?,?)";
-    const values = [email, username, password];
-    db.query(SQL, values, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
+async function addUser(mail, username, password) {
+  try {
+    const user = await User.query().insert({
+      mail: mail,
+      login: username,
+      password: password,
     });
-  });
+    return user;
+  } catch (err) {
+    throw err;
+  }
 }
 
 router.post(
   "/",
   [
-    body("Email").isEmail().withMessage("Please write corect Mail"),
+    body("Mail").isEmail().withMessage("Please write corect Mail"),
 
     body("Password")
       .isLength({ min: 8 })
@@ -59,13 +53,13 @@ router.post(
     }
     const passFromForm = req.body.Password;
     const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
-    const sentEmail = req.body.Email;
+    const sentEmail = req.body.Mail;
     const sentUserName = req.body.UserName;
     const sentPassword = userPassEncrypt;
 
     try {
       const userExists = await checkIfUserExists(sentEmail);
-      if (userExists) {
+      if (userExists.length > 0) {
         res.send({ message: "User already exists" });
       } else {
         await addUser(sentEmail, sentUserName, sentPassword);
@@ -73,7 +67,7 @@ router.post(
       }
     } catch (error) {
       res.status(500).send({ message: "Internal Server Error" });
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   }
 );

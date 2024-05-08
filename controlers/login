@@ -3,24 +3,24 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const app = express();
-const db = require("../config/database");
+
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
+const User = require("../database/models/user");
 app.use(express.json());
 function generateAccessToken(username) {
   return jwt.sign(username, process.env.JWTPASS, {
     expiresIn: "1800s",
   });
 }
-
 router.post(
   "/",
   [
     body("LoginMai").isEmail().withMessage("Please write corect Mail"),
     body("LoginPassword")
       .isLength({ min: 1 })
-      .withMessage("Password can not be null")
-      .blacklist("Password"),
+      .withMessage("Password can not be null"),
+    // .blacklist("Password"),
   ],
   async (req, red) => {
     const errors = validationResult(req);
@@ -30,55 +30,37 @@ router.post(
     }
     const checkemail = req.body.LoginMai;
     const checkpass = req.body.LoginPassword;
-    users = await User.query();
-    red.send(users);
-    console.log(checkemail, checkpass);
-    var personalia = "null";
-    var email = "null";
+
+    await console.log(checkpass);
+
     if (checkemail.length < 1 || checkpass.length < 1) {
       red.status(401).json({ error: "Unauthorized" });
     } else {
-      db.query(
-        "SELECT users.id, users.email, users.password, users.username, personalinfo.id, personalinfo.userId, personalinfo.street, personalinfo.postCode, personalinfo.city, personalinfo.houseNumber, personalinfo.phoneNumber FROM users LEFT JOIN personalinfo ON users.id = personalinfo.userId WHERE users.email = ?",
-        checkemail,
-        (err, rows) => {
-          if (err) {
-            throw err;
-            red.send({ dbstatus: "error", response: err });
-          }
-          console.log(rows[0]);
-          if (rows.length) {
-            const passfromdb = rows[0]?.password;
+      console.log(checkemail);
+      const user = await User.query().where("mail", checkemail);
 
-            //uystaiwanie cokiesuów
+      await console.log(user, "ss");
+      console.log(user, "2s---s");
 
-            if (bcrypt.compareSync(checkpass, passfromdb)) {
-              // ustawianie cookies
-              id = rows[0]?.id;
-              email = rows[0]?.email;
-              personalia = rows[0]?.username;
-              streets = rows[0]?.street;
-              postCodes = rows[0]?.postCode;
-              //
-              citys = rows[0]?.city;
-              const tokenseted = generateAccessToken({
-                id: id,
-                email: email,
-                personInfo: personalia,
-                street: streets,
-                postCode: postCodes,
-                city: citys,
-              });
-              req.session.views = tokenseted;
-              red.send({ dbstatus: "User Logged", response: tokenseted });
-            } else {
-              red.send({ dbstatus: "not login", response: 0 });
-            }
-          } else {
-            red.send({ dbstatus: "Please write corect Mail", response: 0 });
-          }
+      if (user.length > 0) {
+        // const passfromdb = rows[0]?.password;
+
+        //uystaiwanie cokiesuów
+
+        if (bcrypt.compareSync(checkpass, passfromdb)) {
+          // ustawianie cookies
+          id = user.id;
+          const tokenseted = generateAccessToken({
+            id: id,
+          });
+          req.session.views = tokenseted;
+          red.send({ dbstatus: "User Logged", response: tokenseted });
+        } else {
+          red.send({ dbstatus: "not login", response: 0 });
         }
-      );
+      } else {
+        red.send({ dbstatus: "Please write corect Mail", response: 0 });
+      }
     }
   }
 );
