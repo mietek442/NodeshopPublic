@@ -22,7 +22,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "make-migration": "npx knex migrate:make init",
+    "dev": "npm run migrate && npm run seed & node --watch server.js",
     "migrate": "knex migrate:latest",
+    "seed": "npx knex seed:run",
+    "make-seed": "npx knex seed:make new-seed",
+    "down": "npx knex migrate:down",
     "test": "echo \"Error: no test specified\" && exit 1",
     "nodemon": "npm run hmr",
     "start": "node server.js",

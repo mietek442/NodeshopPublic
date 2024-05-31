@@ -16,11 +16,11 @@ async function checkIfUserExists(mail) {
   }
 }
 
-async function addUser(mail, username, password) {
+async function addUser(mail, login, password) {
   try {
     const user = await User.query().insert({
       mail: mail,
-      login: username,
+      login: login,
       password: password,
     });
     return user;
@@ -32,16 +32,15 @@ async function addUser(mail, username, password) {
 router.post(
   "/",
   [
-    body("Mail").isEmail().withMessage("Please write corect Mail"),
+    body("mail").isEmail().withMessage("Please write corect Mail"),
 
-    body("Password")
+    body("password")
       .isLength({ min: 8 })
       .withMessage("Password must contains over 8 characters")
       .matches(/^(?=.*[!@#$%^&*()\-_=+{};:,<.>])|(?=.*[A-Z])|(?=.*\d)/)
       .withMessage(
         "pass is to simply add either !-? or CAPITAL LETTER or a 123.."
-      )
-      .blacklist("Password"),
+      ),
   ],
   async (req, res) => {
     // create new user
@@ -51,10 +50,10 @@ router.post(
       //return erors
       return res.status(400).json({ errors: errors.array() });
     }
-    const passFromForm = req.body.Password;
+    const passFromForm = req.body.password;
     const userPassEncrypt = await bcrypt.hash(passFromForm, 10);
-    const sentEmail = req.body.Mail;
-    const sentUserName = req.body.UserName;
+    const sentEmail = req.body.mail;
+    const login = req.body.login;
     const sentPassword = userPassEncrypt;
 
     try {
@@ -62,7 +61,7 @@ router.post(
       if (userExists.length > 0) {
         res.send({ message: "User already exists" });
       } else {
-        await addUser(sentEmail, sentUserName, sentPassword);
+        await addUser(sentEmail, login, sentPassword);
         res.send({ message: "User added" });
       }
     } catch (error) {

@@ -8,9 +8,9 @@ exports.seed = async function (knex) {
   await knex("productparams").del();
   await knex("products").del();
   await knex("userinfo").del();
-  await knex("users").del();
+  await knex("user").del();
 
-  await knex("users").insert([
+  await knex("user").insert([
     {
       id: 1,
       mail: "example1@example.com",
@@ -35,7 +35,7 @@ exports.seed = async function (knex) {
       number: "123",
       phonenumber: "123221321",
       difrentdelivery: null,
-      user_id: 1,
+      userId: 1,
     },
   ]);
   await knex("products").insert([
@@ -64,14 +64,14 @@ exports.seed = async function (knex) {
       desc: "Waga produktu wyrażona w kilogramach.",
       infoparam:
         "Podana waga jest orientacyjna i może się nieznacznie różnić w zależności od produkcji.",
-      product_id: 1,
+      productId: 1,
     },
   ]);
   await knex("opinion").insert([
     {
       id: 1,
-      user_id: 1,
-      procuct_id: 1,
+      userId: 1,
+      procuctId: 1,
       stars: 4,
       desc: "Bardzo dobre doświadczenie z tym produktem. Polecam!",
       img: "https://placehold.co/200",

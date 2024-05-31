@@ -4,7 +4,7 @@
  */
 exports.up = function (knex) {
   return knex.schema
-    .createTable("users", (table) => {
+    .createTable("user", (table) => {
       table.increments().primary();
       table.string("mail").unique().notNullable();
       table.string("login").notNullable();
@@ -26,7 +26,7 @@ exports.up = function (knex) {
         .unsigned()
         .notNullable()
         .references("id")
-        .inTable("users");
+        .inTable("user");
       table.timestamps(true, true);
     })
 
@@ -69,7 +69,7 @@ exports.up = function (knex) {
         .unsigned()
         .notNullable()
         .references("id")
-        .inTable("users");
+        .inTable("user");
       table
         .integer("procuctId")
         .unsigned()
@@ -93,5 +93,5 @@ exports.down = function (knex) {
     .dropTableIfExists("productparams")
     .dropTableIfExists("products")
     .dropTableIfExists("userinfo")
-    .dropTableIfExists("users");
+    .dropTableIfExists("user");
 };

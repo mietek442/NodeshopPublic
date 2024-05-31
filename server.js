@@ -14,6 +14,8 @@ const swaggerUI = require("swagger-ui-express");
 const setupDb = require("./database/db-setup");
 const User = require("./database/models/user");
 const UserInfo = require("./database/models/userinfo");
+const Product = require("./database/models/products");
+const Productparams = require("./database/models/productparams");
 setupDb();
 const swaggerOptions = {
   failOnErrors: true,
@@ -92,17 +94,15 @@ app.listen(8802, () => {
  *
  */
 app.get("/test/:id", async (req, res, next) => {
-  try {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    const userInfo = await UserInfo.query().findById(id);
+  const productParams = await Productparams.query()
+    .findById(id)
+    .withGraphFetched("[product_id, products.id]")
+    .toKnexQuery();
+  console.log(productParams);
 
-    res.json(userInfo);
-    console.log(userInfo);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
-  }
+  res.json(productParams);
 });
 /**
  * @swagger
@@ -119,13 +119,13 @@ app.get("/test/:id", async (req, res, next) => {
  *         schema:
  *           type: object
  *           properties:
- *            UserName:
+ *            login:
  *              type: string
  *              required: true
- *            Mail:
+ *            mail:
  *              type: string
  *              required: true
- *            Password:
+ *            password:
  *              type: string
  *              required: true
  *
@@ -167,10 +167,10 @@ const loginRoute = require("./controlers/login");
  *         schema:
  *           type: object
  *           properties:
- *            LoginMai:
+ *            mail:
  *              type: string
  *              required: true
- *            LoginPassword:
+ *            password:
  *              type: string
  *              required: true
  *

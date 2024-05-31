@@ -20,10 +20,6 @@ module.exports = {
   seeds: {
     directory: "./database/seeds",
   },
-  // automatically convert camelCase to snake case
-  // so table names are in snake case
-  // but we can use camelCase fields per default
-  ...knexSnakeCaseMappers(),
 
-  useNullAsDefault: true,
+  ...knexSnakeCaseMappers(),
 };
