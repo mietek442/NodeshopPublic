@@ -5,7 +5,8 @@ const app = express();
 const mysql = require("mysql");
 const jwt = require("jsonwebtoken");
 app.use(express.json());
-
+const User = require("../database/models/user");
+const UserInfo = require("../database/models/userinfo");
 const db = require("../config/database");
 // app.use(cors());
 
@@ -22,13 +23,15 @@ function JwtVerfiy(datatovervify) {
     }
   );
 }
-router.get("/", function (req, res, next) {
-  const datatores = JwtVerfiy(req?.session?.views);
-  const jsondekodettinfo = JSON?.stringify(datatores);
-  if (jsondekodettinfo) {
-    res.end(jsondekodettinfo);
-  } else {
-    res.end("notlogin");
-  }
+
+router.get("/", async (req, res, next) => {
+  const { id } = req.params;
+
+  var productParams = await UserInfo.query()
+    .findById(1)
+    .withGraphFetched("user");
+  console.log(productParams);
+
+  res.json(productParams);
 });
 module.exports = router;

@@ -96,10 +96,9 @@ app.listen(8802, () => {
 app.get("/test/:id", async (req, res, next) => {
   const { id } = req.params;
 
-  const productParams = await Productparams.query()
+  var productParams = await UserInfo.query()
     .findById(id)
-    .withGraphFetched("[product_id, products.id]")
-    .toKnexQuery();
+    .withGraphFetched("user");
   console.log(productParams);
 
   res.json(productParams);
@@ -227,7 +226,7 @@ app.use("/logout", logoutRoute);
  *
  */
 // zwracanie danych
-const returndataRoute = require("./controlers/returndata");
+const acountinfoRoute = require("./controlers/acountinfo.js");
 /**
  * @swagger
  * /acountdata:
@@ -254,7 +253,7 @@ const returndataRoute = require("./controlers/returndata");
  *         description: Internal Server Error
  *
  */
-app.use("/acountdata", returndataRoute);
+app.use("/acountinfo", acountinfoRoute);
 //generowanie tokenu do zmiany hasła
 const GenerateresetpassRoute = require("./controlers/generateresetpass");
 app.use("/generateresetpass", GenerateresetpassRoute);
@@ -265,7 +264,7 @@ app.use("/resetpass", ResetPassRoute);
 const changeSRoute = require("./controlers/changeSimpleValues");
 const { info } = require("console");
 const { title } = require("process");
-const { version } = require("os");
+const { version, userInfo } = require("os");
 /**
  * @swagger
  * /acountdata:
